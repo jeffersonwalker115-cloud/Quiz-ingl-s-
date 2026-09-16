@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz de Inglês</title>
+  
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .quiz-container {
+      background-color: #ffffff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    .pergunta {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: #555;
+    }
+
+    .opcoes-btn {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    button {
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #007bff;
+      background-color: #fff;
+      color: #007bff;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    /* Cores de feedback ao responder */
+    button.correto {
+      background-color: #28a745 !important;
+      color: #fff !important;
+      border-color: #28a745 !important;
+    }
+
+    button.errado {
+      background-color: #dc3545 !important;
+      color: #fff !important;
+      border-color: #dc3545 !important;
+    }
+
+    #resultado {
+      font-size: 20px;
+      font-weight: bold;
+      color: #28a745;
+    }
+
+    .escondido {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-container">
+    <h1>Quiz de Inglês</h1>
+    
+    <!-- Tela de Inicio (Nome) -->
+    <div id="inicio-box">
+      <p>Digite seu primeiro nome para começar:</p>
+      <input type="text" id="nome-usuario" placeholder="Seu primeiro nome" autocomplete="off">
+      <button onclick="iniciarJogo()">Começar Quiz</button>
+    </div>
+
+    <!-- Tela do Quiz -->
+    <div id="quiz-box" class="escondido">
+      <div id="pergunta" class="pergunta"></div>
+      <div id="opcoes" class="opcoes-btn"></div>
+    </div>
+
+    <!-- Tela do Resultado -->
+    <div id="resultado-box" class="escondido">
+      <h2>Fim do Quiz!</h2>
+      <p id="resultado"></p>
+      <button onclick="reiniciarQuiz()">Tentar Novamente</button>
+    </div>
+  </div>
+
+  <script>
+    const perguntas = [
+      { pergunta: "Como se diz 'Obrigado' em inglês?", opcoes: ["Hello", "Thank you", "Please", "Goodbye"], correta: 1 },
+      { pergunta: "Qual é a tradução da cor 'Blue'?", opcoes: ["Vermelho", "Verde", "Azul", "Amarelo"], correta: 2 },
+      { pergunta: "Como se diz 'Livro' em inglês?", opcoes: ["Book", "Pen", "Table", "Dog"], correta: 0 },
+      { pergunta: "Qual é o oposto da palavra 'Big'?", opcoes: ["Tall", "Small", "Fast", "Happy"], correta: 1 },
+      { pergunta: "Como se diz 'Cachorro' em inglês?", opcoes: ["Cat", "Bird", "Dog", "Fish"], correta: 2 },
+      { pergunta: "Qual é a tradução de 'Good morning'?", opcoes: ["Boa tarde", "Boa noite", "Bom dia", "Até logo"], correta: 2 },
+      { pergunta: "Como se escreve o número '10' em inglês?", opcoes: ["One", "Five", "Eight", "Ten"], correta: 3 },
+      { pergunta: "O que significa 'Water'?", opcoes: ["Água", "Suco", "Leite", "Café"], correta: 0 },
+      { pergunta: "Qual é o significado de 'Family'?", opcoes: ["Amigos", "Família", "Trabalho", "Escola"], correta: 1 },
+      { pergunta: "Como se diz 'Maçã' em inglês?", opcoes: ["Banana", "Orange", "Apple", "Grape"], correta: 2 }
+    ];
+
+    let indicePerguntaAtual = 0;
+    let pontuacao = 0;
+    let nomeJogador = "";
+
+    const inicioBox = document.getElementById("inicio-box");
+    const quizBox = document.getElementById("quiz-box");
+    const resultadoBox = document.getElementById("resultado-box");
+    const perguntaEl = document.getElementById("pergunta");
+    const opcoesEl = document.getElementById("opcoes");
+    const resultadoEl = document.getElementById("resultado");
+
+    function iniciarJogo() {
+      const inputNome = document.getElementById("nome-usuario").value.trim();
+      
+      if (inputNome === "") {
+        alert("Por favor, digite seu nome para continuar!");
+        return;
+      }
+
+      nomeJogador = inputNome.split(" ")[0]; // Pega apenas o primeiro nome
+      inicioBox.classList.add("escondido");
+      quizBox.classList.remove("escondido");
+      carregarPergunta();
+    }
+
+    function carregarPergunta() {
+      const perguntaAtual = perguntas[indicePerguntaAtual];
+      perguntaEl.innerText = `${indicePerguntaAtual + 1}. ${perguntaAtual.pergunta}`;
+      opcoesEl.innerHTML = "";
+
+      perguntaAtual.opcoes.forEach((opcao, index) => {
+        const botao = document.createElement("button");
+        botao.innerText = opcao;
+        botao.onclick = () => verificarResposta(index, botao);
+        opcoesEl.appendChild(botao);
+      });
+    }
+
+    function verificarResposta(indiceSelecionado, botaoClicado) {
+      const perguntaAtual = perguntas[indicePerguntaAtual];
+      const todosBotoes = opcoesEl.querySelectorAll("button");
+
+      // Desativa todos os botões para evitar múltiplos cliques
+      todosBotoes.forEach(b => b.disabled = true);
+
+      // Mostra qual é a resposta correta em verde
+      todosBotoes[perguntaAtual.correta].classList.add("correto");
+
+      // Se a resposta escolhida for errada, marca o botão em vermelho
+      if (indiceSelecionado === perguntaAtual.correta) {
+        pontuacao++;
+      } else {
+        botaoClicado.classList.add("errado");
+      }
+
+      // Aguarda 1 segundo antes de ir para a próxima pergunta
+      setTimeout(() => {
+        indicePerguntaAtual++;
+        if (indicePerguntaAtual < perguntas.length) {
+          carregarPergunta();
+        } else {
+          mostrarResultado();
+        }
+      }, 1000);
+    }
+
+    function mostrarResultado() {
+      quizBox.classList.add("escondido");
+      resultadoBox.classList.remove("escondido");
+      resultadoEl.innerText = `${nomeJogador}, você acertou ${pontuacao} de ${perguntas.length} perguntas!`;
+    }
+
+    function reiniciarQuiz() {
+      indicePerguntaAtual = 0;
+      pontuacao = 0;
+      resultadoBox.classList.add("escondido");
+      inicioBox.classList.remove("escondido");
+      document.getElementById("nome-usuario").value = "";
+    }
+  </script>
+
+</body>
+</html>
